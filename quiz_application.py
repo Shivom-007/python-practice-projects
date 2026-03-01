@@ -21,6 +21,11 @@ questions = {
             "question": "Which data type is immutable?",
             "options": ["A. List", "B. Dictionary", "C. Set", "D. Tuple"],
             "answer": "D"
+        },
+        {
+             "question": "What is the output of print(type([]))?",
+            "options": ["A. <class 'list'>", "B. <class 'tuple'>", "C. <class 'dict'>", "D. <class 'set'>"],
+            "answer": "A",
         }
     ],
 
@@ -162,7 +167,7 @@ def start_quiz():
             )
 
             for q in selected_questions:
-                total_questions += 2
+                total_questions += 1
 
                 print("\n" + q["question"])
                 for option in q["options"]:
