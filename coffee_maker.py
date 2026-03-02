@@ -107,16 +107,15 @@ def process_coins(price):
 
     print("Total inserted:", total)
 
-    if total >= price:
-        print("Payment successful ")
-    else:
-        print("Not enough money ")
+    if total < price:
+        print("Sorry, that's not enough money. Money refunded.")
+        return False   
 
     change = round(total - price, 2)
 
     if change > 0:
         print(f"Here is ${change} in change.")
 
-
     resources["money_present"] += price
+    print("Payment successful ")
     return True
