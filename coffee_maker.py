@@ -1,19 +1,36 @@
 resources = {
     "milk": 3000,
     "water": 5000,
-    "coffee": 300,   
+    "coffee": 300,
     "money_present": 500
+}
+
+menu = {
+    "espresso": {
+        "water": 50,
+        "coffee": 18,
+        "price": 5
+    },
+    "latte": {
+        "water": 200,
+        "coffee": 24,
+        "milk": 250,
+        "price": 10
+    },
+    "cappuccino": {
+        "water": 250,
+        "coffee": 24,
+        "milk": 100,
+        "price": 8
+    }
 }
 
 
 def like_to_have():
-    ''' This function takes input from user and based on that particular input
-        it do as written in this file.'''
     output = input("\nWhat would you like to have (espresso/latte/cappuccino): ").lower()
 
-    if output in ["espresso", "latte", "cappuccino"]:
-        print("Processing the data about what you have opted.")
-        print("\nChecking whether there are enough resources.....")
+    if output in menu:
+        print("\nChecking resources...")
         return sufficient_resource(output)
 
     elif output == "off":
@@ -21,21 +38,20 @@ def like_to_have():
 
     elif output == "report":
         before_resource_report()
-        return True   
+        return True
 
     else:
         print("Invalid choice. Try again.\n")
-        return True   
+        return True
 
 
 def turn_off():
-    '''This function makes the machine to "turn off" itself by returning False.'''
-    print("The machine is slowly turning off.......")
+    print("The machine is turning off...")
     return False
 
 
 def before_resource_report():
-    '''This function checks the quantity of resources present in the machine.'''
+    print("\n---- Current Resources ----")
     for resource, quantity in resources.items():
         if resource in ["milk", "water"]:
             print(f"{resource}: {quantity}ml")
@@ -43,73 +59,54 @@ def before_resource_report():
             print(f"{resource}: {quantity}g")
         else:
             print(f"Money: ${quantity}")
+    print("----------------------------\n")
 
 
 def sufficient_resource(choice):
-    ''' checks whether their are enough resources or not depending on the choice.'''
-    menu = {
-        "espresso": {
-            "water": 50,
-            "coffee": 18,
-            "milk": 0,
-            "price": 5
-        },
-        "latte": {
-            "water": 200,
-            "coffee": 24,
-            "milk": 250,
-            "price": 10
-        },
-        "cappuccino": {
-            "water": 250,
-            "coffee": 24,
-            "milk": 100,
-            "price": 8
-        }
-    }
-
     drink = menu[choice]
 
-    for ingredient in ["water", "milk", "coffee"]:
-        if drink[ingredient] > resources[ingredient]:
-            print(f"Sorry, not enough {ingredient}.")
-            print("Sorry for the inconvenience ")
-            return True   
+    # Check ingredients dynamically
+    for ingredient in drink:
+        if ingredient != "price":
+            if drink.get(ingredient, 0) > resources.get(ingredient, 0):
+                print(f"Sorry, not enough {ingredient}.")
+                return True
 
-    print("There are enough resources .")
-    print("The process to make coffee will start after payment .")
+    print("Resources are sufficient.")
+    print("Please make payment.")
 
-    price = drink["price"]
-
-    if not process_coins(price):
+    if not process_coins(drink["price"]):
         return True
 
-    print("The process to make coffee will start ")
+    # Deduct ingredients
+    for ingredient in drink:
+        if ingredient != "price":
+            resources[ingredient] -= drink.get(ingredient, 0)
 
-    for ingredient in ["water", "milk", "coffee"]:
-        resources[ingredient] -= drink[ingredient]
-
-    print(f"Here is your {choice}. Enjoy! ")
+    print(f"\nHere is your {choice}. Enjoy ☕")
     return True
 
-  
 
 def process_coins(price):
-    '''Calculate the money received and give change.'''
-    print("Insert coins ")
+    print("\nInsert coins:")
 
-    quarters = int(input("How many quarters? "))
-    dimes = int(input("How many dimes? "))
-    nickels = int(input("How many nickels? "))
-    pennies = int(input("How many pennies? "))
+    try:
+        quarters = int(input("How many quarters? "))
+        dimes = int(input("How many dimes? "))
+        nickels = int(input("How many nickels? "))
+        pennies = int(input("How many pennies? "))
+    except ValueError:
+        print("Invalid input. Transaction cancelled.")
+        return False
 
     total = quarters*0.25 + dimes*0.10 + nickels*0.05 + pennies*0.01
+    total = round(total, 2)
 
     print("Total inserted:", total)
 
     if total < price:
         print("Sorry, that's not enough money. Money refunded.")
-        return False   
+        return False
 
     change = round(total - price, 2)
 
@@ -117,5 +114,5 @@ def process_coins(price):
         print(f"Here is ${change} in change.")
 
     resources["money_present"] += price
-    print("Payment successful ")
+    print("Payment successful.")
     return True
