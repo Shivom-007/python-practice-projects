@@ -1,6 +1,7 @@
 import random
-# we are using this as a small dataset for our program but we could also provide big data using
-questions = {
+
+# Dataset
+QUESTIONS = {
     "python": [
         {
             "question": "What does len() do?",
@@ -23,9 +24,9 @@ questions = {
             "answer": "D"
         },
         {
-             "question": "What is the output of print(type([]))?",
+            "question": "What is the output of print(type([]))?",
             "options": ["A. <class 'list'>", "B. <class 'tuple'>", "C. <class 'dict'>", "D. <class 'set'>"],
-            "answer": "A",
+            "answer": "A"
         }
     ],
 
@@ -88,7 +89,7 @@ questions = {
         },
         {
             "question": "Who was known as the Iron Man of India?",
-            "options": ["A. Bhagat Singh", "B. Subhash Chandra Bose", "C. Sardar Vallabhbhai Patel", "D. Nehru"],
+            "options": ["A. Bhagat Singh", "B. Subhash Chandra Bose", "C. Sardar Patel", "D. Nehru"],
             "answer": "C"
         },
         {
@@ -100,45 +101,69 @@ questions = {
 }
 
 
-def personal_info():
-    while True:
-        print("\n")
-        name = input("Enter your name: ")
-        e_mail = input("Enter the e-mail: ")
-
-        interest_subject = input("Enter your interests (comma separated)(Math, Science, Python, History): ")
-        interest_list = [subject.strip() for subject in interest_subject.split(",")]
-        standard = input("Enter the standard you are enrolled: ")
-
-        
-
-        print("\nPlease confirm your details:")
-        print("Name:", name)
-        print("E-mail:", e_mail)
-        print("Interest subject:", interest_subject)
-        print("Standard:", standard)
-
-        output = input("\nAre these details correct? (yes/no/quit): ").lower()
-
-        if output == "yes":
-            print("\nNow, let's move on to play this interesting game...")
-            return True
-
-        elif output == "no":
-            print("\nOkay, let's re-enter your details.\n")
-            continue   
-
-        elif output == "quit":
-            return want_to_quit()
-
-        else:
-            print("Invalid input. Please type yes, no, or quit.\n")
+def show_subjects():
+    print("\nAvailable Subjects:")
+    for subject in QUESTIONS.keys():
+        print("-", subject.capitalize())
 
 
-def want_to_quit():
-    print("The system is slowly shutting down......")
-    return False
+def get_user_info():
+    print("\nEnter your details")
+    name = input("Name: ")
+    email = input("Email: ")
+    standard = input("Standard/Class: ")
 
+    print("\nHello", name, "! Let's start the quiz.")
+    return name
+
+
+def ask_questions(subjects):
+    score = 0
+    total = 0
+
+    for subject in subjects:
+        if subject not in QUESTIONS:
+            print(f"\nNo questions available for {subject}")
+            continue
+
+        print(f"\n--- {subject.upper()} QUIZ ---")
+
+        selected = random.sample(QUESTIONS[subject], min(3, len(QUESTIONS[subject])))
+
+        for q in selected:
+            total += 1
+
+            print("\n" + q["question"])
+
+            for option in q["options"]:
+                print(option)
+
+            while True:
+                ans = input("Your answer (A/B/C/D): ").upper()
+                if ans in ["A", "B", "C", "D"]:
+                    break
+                print("Invalid option. Try again.")
+
+            if ans == q["answer"]:
+                print("Correct!")
+                score += 2
+            else:
+                print("Wrong! Correct answer:", q["answer"])
+
+    return score, total
+
+
+def play_quiz():
+    show_subjects()
+
+    subjects = input("\nChoose subjects (comma separated): ").lower()
+    subject_list = [s.strip() for s in subjects.split(",")]
+
+    score, total = ask_questions(subject_list)
+
+    print("\nQuiz Finished")
+    print("Score:", score, "/", total * 2)
+    
 
 def predefined_subjects():
     subjects = ["Math", "Science", "Python", "History"]
@@ -148,50 +173,18 @@ def predefined_subjects():
         print("-", subject)
 
 
+def main():
+    print("===== Welcome to the Quiz Game =====")
 
-def start_quiz():
-    score = 0
-    total_questions = 0
+    get_user_info()
 
-    interest_subject = input("\nEnter again the subjects you want quiz from (comma separated): ").lower()
-    interest_list = [subject.strip().lower() for subject in interest_subject.split(",")]
+    while True:
+        play_quiz()
 
-    for subject in interest_list:
-        if subject in questions:
+        again = input("\nDo you want to play again? (yes/no): ").lower()
 
-            print(f"\n--- {subject.upper()} QUESTIONS ---")
+        if again != "yes":
+            print("Thanks for playing!")
+            break
 
-            selected_questions = random.sample(
-                questions[subject],
-                min(3, len(questions[subject]))
-            )
 
-            for q in selected_questions:
-                total_questions += 1
-
-                print("\n" + q["question"])
-                for option in q["options"]:
-                    print(option)
-
-                answer = input("Your answer (A/B/C/D): ").upper()
-
-                if answer == q["answer"]:
-                    print("Correct! ")
-                    score += 2
-                else:
-                    print("Wrong Correct answer:", q["answer"])
-        else:
-            print(f"No questions available for subject: {subject}")
-
-    print("\nQuiz Finished!")
-    print("Your Final Score:", score, "/", total_questions)        
-
-print("Welcome to the Quiz Game.....")
-predefined_subjects()
-
-power = personal_info()
-
-while power:
-    print("Game starts here...")
-    start_quiz()
-    break

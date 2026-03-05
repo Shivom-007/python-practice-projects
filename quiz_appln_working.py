@@ -1,16 +1,21 @@
-import random
 import quiz_application as QG
 
+print("===== Welcome to the Quiz Game =====\n")
 
-print(f"Welcome to the Quiz Game....." )
-print("Enter you details here:")
-name = input("Name: ")
-e_mail = input("email: ")
-interest_subject = input("interest_subject: ")
-standard = input("standard: ")
-print("\n")
+# show available subjects
+QG.predefined_subjects()
 
+# take user information
+power = QG.get_user_info()
 
-power = True
 while power:
-    power = QG.personal_info(name, e_mail, interest_subject, standard)
+
+    print("\nGame starts here...\n")
+
+    QG.play_quiz()
+
+    again = input("\nDo you want to play again? (yes/no): ").lower()
+
+    if again == "no":
+        power = False
+        QG.want_to_quit()
