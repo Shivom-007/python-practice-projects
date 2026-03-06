@@ -17,5 +17,5 @@ while power:
     again = input("\nDo you want to play again? (yes/no): ").lower()
 
     if again == "no":
+        print("\nThe system is slowly shutting down...")
         power = False
-        QG.want_to_quit()
