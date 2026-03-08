@@ -3,12 +3,12 @@ import quiz_application as QG
 print("===== Welcome to the Quiz Game =====\n")
 
 # show available subjects
-QG.predefined_subjects()
+QG.show_subjects()
 
 # take user information
-power = QG.get_user_info()
+QG.get_user_info()
 
-while power:
+while True:
 
     print("\nGame starts here...\n")
 
@@ -16,6 +16,6 @@ while power:
 
     again = input("\nDo you want to play again? (yes/no): ").lower()
 
-    if again == "no":
+    if again != "yes":
         print("\nThe system is slowly shutting down...")
-        power = False
+        break
