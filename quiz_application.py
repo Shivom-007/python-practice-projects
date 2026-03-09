@@ -87,11 +87,37 @@ def show_subjects():
 def get_user_info():
     print("\nEnter your details")
     name = input("Name: ")
-    input("Email: ")
-    input("Standard/Class: ")
+    email = input("Email: ")
+    standard = input("Standard/Class: ")
+    print("\n")
+
+    name, email, standard = recheck_user_info(name, email, standard)
+
     print(f"\nHello {name}! Let's start the quiz.")
+    print("\n\n")
+
+def recheck_user_info(name, email, standard):
+    print("===== Re-Check the information given =====\n")
+
+    print("Name given:", name)
+    print("Email given:", email)
+    print("Standard/Class given:", standard)
+
+    print("\n")
+
+    info = input("If information is wrong, Type (yes/no): ").lower()
+
+    if info == "yes":
+        print("\n===== Re-enter the information =====\n")
+
+        name = input("Name: ")
+        email = input("Email: ")
+        standard = input("Standard/Class: ")
+
+    return name, email, standard
 
 
+        
 def ask_questions(subjects):
     score = total = 0
 
@@ -130,17 +156,7 @@ def play_quiz():
     print(f"\nQuiz Finished\nScore: {score} / {total*2}")
 
 
-def main():
-    print("===== Welcome to the Quiz Game =====")
 
-    get_user_info()
-
-    while True:
-        play_quiz()
-
-        if input("\nPlay again? (yes/no): ").lower() != "yes":
-            print("Thanks for playing!")
-            break
 
 
 
