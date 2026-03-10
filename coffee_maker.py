@@ -2,85 +2,124 @@ resources = {
     "milk": 3000,
     "water": 5000,
     "coffee": 300,
-    "money": 500
+    "money_present": 500
 }
 
 menu = {
-    "espresso": {"water": 50, "coffee": 18, "price": 5},
+    "espresso": {"water": 50, "coffee": 18, "milk": 0, "price": 5},
     "latte": {"water": 200, "coffee": 24, "milk": 250, "price": 10},
     "cappuccino": {"water": 250, "coffee": 24, "milk": 100, "price": 8}
 }
 
-coins = {
-    "quarters": 0.25,
-    "dimes": 0.10,
-    "nickels": 0.05,
-    "pennies": 0.01
-}
+
+def like_to_have():
+    """Ask the user which drink they want."""
+    choice = input("\nWhat would you like to have (espresso/latte/cappuccino): ").lower()
+
+    if choice in menu:
+        print("\nChecking resources...")
+        return sufficient_resource(choice)
+
+    elif choice == "report":
+        before_resource_report()
+        return True
+
+    elif choice == "off":
+        return turn_off()
+
+    else:
+        print("Invalid choice. Please try again.")
+        return True
 
 
-def report():
-    print("\nResources:")
-    for k, v in resources.items():
-        unit = "ml" if k in ["water", "milk"] else "g" if k == "coffee" else "$"
-        print(f"{k}: {v}{unit}")
+def turn_off():
+    """Turn off the coffee machine."""
+    print("The machine is turning off...")
+    return False
 
 
-def check_and_make(choice):
+def before_resource_report():
+    """Display current machine resources."""
+    print("\n----- Resource Report -----")
+    for resource, quantity in resources.items():
+
+        if resource in ["milk", "water"]:
+            unit = "ml"
+        elif resource == "coffee":
+            unit = "g"
+        else:
+            unit = "$"
+
+        print(f"{resource}: {quantity}{unit}")
+    print("----------------------------")
+
+
+def sufficient_resource(choice):
+    """Check if enough resources exist for the selected drink."""
+
     drink = menu[choice]
 
-    for item, amount in drink.items():
-        if item != "price" and resources.get(item, 0) < amount:
-            print(f"Sorry, not enough {item}.")
-            return
+    for ingredient, amount in drink.items():
+        if ingredient != "price" and resources.get(ingredient, 0) < amount:
+            print(f"Sorry, not enough {ingredient}.")
+            return True
 
-    if not payment(drink["price"]):
-        return
+    print("Resources available.")
+    print("Please insert coins.")
 
-    for item, amount in drink.items():
-        if item != "price":
-            resources[item] -= amount
+    if not process_coins(drink["price"]):
+        return True
 
-    print(f"Here is your {choice}. Enjoy ☕")
+    make_coffee(choice)
+    return True
 
 
-def payment(price):
+def process_coins(price):
+    """Handle coin input and payment verification."""
+
     print("\nInsert coins")
 
-    total = sum(
-        int(input(f"{coin}: ")) * value
-        for coin, value in coins.items()
-    )
+    coins = {
+        "quarters": 0.25,
+        "dimes": 0.10,
+        "nickels": 0.05,
+        "pennies": 0.01
+    }
+
+    total = 0
+
+    for coin, value in coins.items():
+        try:
+            count = int(input(f"How many {coin}? "))
+        except ValueError:
+            print("Invalid input. Transaction cancelled.")
+            return False
+
+        total += count * value
 
     total = round(total, 2)
 
     if total < price:
-        print("Not enough money. Refunded.")
+        print("Sorry, that's not enough money. Money refunded.")
         return False
 
     change = round(total - price, 2)
 
-    if change:
-        print(f"Change: ${change}")
+    if change > 0:
+        print(f"Here is ${change} in change.")
 
-    resources["money"] += price
+    resources["money_present"] += price
+    print("Payment successful.")
     return True
 
 
-machine_on = True
+def make_coffee(choice):
+    """Deduct ingredients and serve coffee."""
 
-while machine_on:
+    drink = menu[choice]
 
-    choice = input("\nWhat would you like? (espresso/latte/cappuccino): ").lower()
+    for ingredient, amount in drink.items():
+        if ingredient != "price":
+            resources[ingredient] -= amount
 
-    if choice == "off":
-        machine_on = False
-
-    elif choice == "report":
-        report()
-
-    elif choice in menu:
-        check_and_make(choice)
-
-    else:
-        print("Invalid option.")
+    print(f"\nHere is your {choice}. Enjoy ")
