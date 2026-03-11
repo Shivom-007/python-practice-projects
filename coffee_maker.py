@@ -13,11 +13,11 @@ menu = {
 
 
 def like_to_have():
-    """Ask the user which drink they want."""
+    """Take user input and decide action."""
     choice = input("\nWhat would you like to have (espresso/latte/cappuccino): ").lower()
 
     if choice in menu:
-        print("\nChecking resources...")
+        print("Checking resources...")
         return sufficient_resource(choice)
 
     elif choice == "report":
@@ -33,16 +33,13 @@ def like_to_have():
 
 
 def turn_off():
-    """Turn off the coffee machine."""
-    print("The machine is turning off...")
+    print("Machine is turning off...")
     return False
 
 
 def before_resource_report():
-    """Display current machine resources."""
-    print("\n----- Resource Report -----")
+    print("\n--- Resource Report ---")
     for resource, quantity in resources.items():
-
         if resource in ["milk", "water"]:
             unit = "ml"
         elif resource == "coffee":
@@ -51,50 +48,37 @@ def before_resource_report():
             unit = "$"
 
         print(f"{resource}: {quantity}{unit}")
-    print("----------------------------")
+    print("------------------------")
 
 
 def sufficient_resource(choice):
-    """Check if enough resources exist for the selected drink."""
-
     drink = menu[choice]
 
     for ingredient, amount in drink.items():
-        if ingredient != "price" and resources.get(ingredient, 0) < amount:
+        if ingredient != "price" and resources[ingredient] < amount:
             print(f"Sorry, not enough {ingredient}.")
             return True
 
-    print("Resources available.")
-    print("Please insert coins.")
+    print("Resources available. Please insert coins.")
 
-    if not process_coins(drink["price"]):
-        return True
+    if process_coins(drink["price"]):
+        make_coffee(choice)
 
-    make_coffee(choice)
     return True
 
 
 def process_coins(price):
-    """Handle coin input and payment verification."""
-
-    print("\nInsert coins")
-
-    coins = {
-        "quarters": 0.25,
-        "dimes": 0.10,
-        "nickels": 0.05,
-        "pennies": 0.01
-    }
+    coins = {"quarters": 0.25, "dimes": 0.10, "nickels": 0.05, "pennies": 0.01}
 
     total = 0
 
+    print("\nInsert coins:")
     for coin, value in coins.items():
         try:
             count = int(input(f"How many {coin}? "))
         except ValueError:
             print("Invalid input. Transaction cancelled.")
             return False
-
         total += count * value
 
     total = round(total, 2)
@@ -114,8 +98,6 @@ def process_coins(price):
 
 
 def make_coffee(choice):
-    """Deduct ingredients and serve coffee."""
-
     drink = menu[choice]
 
     for ingredient, amount in drink.items():
