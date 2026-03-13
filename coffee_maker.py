@@ -13,49 +13,52 @@ menu = {
 
 
 def like_to_have():
-    """Take user input and decide action."""
-    choice = input("\nWhat would you like to have (espresso/latte/cappuccino): ").lower()
+    """Ask user what drink they want."""
+    choice = input("\nWhat would you like (espresso/latte/cappuccino): ").lower()
+
+    actions = {
+        "report": before_resource_report,
+        "off": turn_off
+    }
 
     if choice in menu:
-        print("Checking resources...")
         return sufficient_resource(choice)
 
-    elif choice == "report":
-        before_resource_report()
-        return True
-
-    elif choice == "off":
-        return turn_off()
+    elif choice in actions:
+        result = actions[choice]()
+        return result if result is not None else True
 
     else:
-        print("Invalid choice. Please try again.")
+        print("Invalid choice. Try again.")
         return True
 
 
 def turn_off():
+    """Turn off the coffee machine."""
     print("Machine is turning off...")
     return False
 
 
 def before_resource_report():
-    print("\n--- Resource Report ---")
+    """Display machine resources."""
+    print("\n------ Resource Report ------")
     for resource, quantity in resources.items():
-        if resource in ["milk", "water"]:
-            unit = "ml"
-        elif resource == "coffee":
-            unit = "g"
-        else:
-            unit = "$"
-
+        units = {"water": "ml", "milk": "ml", "coffee": "g"}
+        unit = units.get(resource, "$")
         print(f"{resource}: {quantity}{unit}")
-    print("------------------------")
+    print("-----------------------------")
 
 
 def sufficient_resource(choice):
+    """Check resources before making drink."""
+
     drink = menu[choice]
 
     for ingredient, amount in drink.items():
-        if ingredient != "price" and resources[ingredient] < amount:
+        if ingredient == "price":
+            continue
+
+        if resources.get(ingredient, 0) < amount:
             print(f"Sorry, not enough {ingredient}.")
             return True
 
@@ -68,17 +71,30 @@ def sufficient_resource(choice):
 
 
 def process_coins(price):
-    coins = {"quarters": 0.25, "dimes": 0.10, "nickels": 0.05, "pennies": 0.01}
+    """Handle coin payment."""
+
+    coin_values = {
+        "quarters": 0.25,
+        "dimes": 0.10,
+        "nickels": 0.05,
+        "pennies": 0.01
+    }
 
     total = 0
 
     print("\nInsert coins:")
-    for coin, value in coins.items():
-        try:
-            count = int(input(f"How many {coin}? "))
-        except ValueError:
-            print("Invalid input. Transaction cancelled.")
-            return False
+
+    for coin, value in coin_values.items():
+        while True:
+            try:
+                count = int(input(f"How many {coin}? "))
+                if count < 0:
+                    print("Please enter a positive number.")
+                    continue
+                break
+            except ValueError:
+                print("Invalid input. Enter a number.")
+
         total += count * value
 
     total = round(total, 2)
@@ -98,6 +114,8 @@ def process_coins(price):
 
 
 def make_coffee(choice):
+    """Deduct ingredients and serve drink."""
+
     drink = menu[choice]
 
     for ingredient, amount in drink.items():
