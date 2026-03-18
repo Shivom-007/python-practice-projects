@@ -15,46 +15,39 @@ coins = {"quarters":0.25, "dimes":0.10, "nickels":0.05, "pennies":0.01}
 
 
 def report():
-    """Display machine resources."""
     units = {"water":"ml","milk":"ml","coffee":"g"}
     print("\nResources:")
-    for r,q in resources.items():
+    for r, q in resources.items():
         print(f"{r}: {q}{units.get(r,'$')}")
 
 
-def check_resources(drink):
-    """Check if ingredients are available."""
-    for item, amount in drink.items():
-        if item != "price" and resources.get(item,0) < amount:
-            print(f"Sorry, not enough {item}.")
-            return False
-    return True
-
-
 def process_payment(price):
-    """Handle coin payment."""
-    print("\nInsert coins")
-    total = sum(int(input(f"{c}: ")) * v for c,v in coins.items())
-    total = round(total,2)
+    try:
+        total = round(sum(int(input(f"{c}: ")) * v for c, v in coins.items()), 2)
+    except ValueError:
+        print("Invalid input. Transaction cancelled.")
+        return False
 
     if total < price:
         print("Not enough money. Refunded.")
         return False
 
-    change = round(total - price,2)
-    if change:
-        print(f"Change: ${change}")
+    if total > price:
+        print(f"Change: ${round(total - price, 2)}")
 
     resources["money"] += price
     return True
 
 
 def make_coffee(choice):
-    """Prepare coffee if resources and payment are valid."""
     drink = menu[choice]
 
-    if not check_resources(drink):
-        return
+    # Combined check + deduction in one pass
+    for item, amount in drink.items():
+        if item != "price":
+            if resources.get(item, 0) < amount:
+                print(f"Sorry, not enough {item}.")
+                return
 
     if not process_payment(drink["price"]):
         return
@@ -63,5 +56,4 @@ def make_coffee(choice):
         if item != "price":
             resources[item] -= amount
 
-    print(f"Here is your {choice}. Enjoy ")
-
+    print(f"Here is your {choice}. Enjoy!!!!")
