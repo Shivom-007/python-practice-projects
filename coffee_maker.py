@@ -15,21 +15,20 @@ coins = {"quarters":0.25, "dimes":0.10, "nickels":0.05, "pennies":0.01}
 
 
 def report():
-    units = {"water":"ml","milk":"ml","coffee":"g"}
     print("\nResources:")
-    for r, q in resources.items():
-        print(f"{r}: {q}{units.get(r,'$')}")
+    for k, v in resources.items():
+        print(f"{k}: {v}{'ml' if k in ('water','milk') else 'g' if k=='coffee' else '$'}")
 
 
 def process_payment(price):
     try:
         total = round(sum(int(input(f"{c}: ")) * v for c, v in coins.items()), 2)
     except ValueError:
-        print("Invalid input. Transaction cancelled.")
+        print("Invalid input.")
         return False
 
     if total < price:
-        print("Not enough money. Refunded.")
+        print("Not enough money.")
         return False
 
     if total > price:
@@ -42,18 +41,17 @@ def process_payment(price):
 def make_coffee(choice):
     drink = menu[choice]
 
-    # Combined check + deduction in one pass
-    for item, amount in drink.items():
-        if item != "price":
-            if resources.get(item, 0) < amount:
-                print(f"Sorry, not enough {item}.")
-                return
+    # single-pass check
+    if any(resources.get(i, 0) < a for i, a in drink.items() if i != "price"):
+        print("Sorry, not enough resources.")
+        return
 
     if not process_payment(drink["price"]):
         return
 
-    for item, amount in drink.items():
-        if item != "price":
-            resources[item] -= amount
+    # single-line deduction
+    for i, a in drink.items():
+        if i != "price":
+            resources[i] -= a
 
-    print(f"Here is your {choice}. Enjoy!!!!")
+    print(f"Here is your {choice}. Enjoy!!!! ")
